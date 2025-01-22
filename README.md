@@ -55,7 +55,7 @@
 <h2>📜 Requirements</h2>
 <p>The following dependencies are required to run the project:</p>
 <ul>
-  <li>Django (v4.x)</li>
+  <li>Django (v5.x)</li>
   <li>Python (v3.10)</li>
 </ul>
 
