@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Media Management</title>
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <style>
+
+          .file-card img,
+          .file-card video,
+          .file-card audio {
+               max-width: fit-content;
+               max-height: fit-content; /* Set a max height for better display */
+               object-fit: contain; /* Ensure aspect ratio is maintained */
+               margin-bottom: auto;
+          }
+
+          .file-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fill, minmax(250px, 5fr));
+               gap: 10px;
+          }
+
+          .file-card {
+               border: 1px solid #ccc;
+               padding: 10px;
+               text-align: center;
+               width: 100%;
+          }
+     </style>
+</head>
+
+<body>
+     <h1>Media Management</h1>
+     <form id="upload-form" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="file" name="file" id="file" multiple>
+          <button type="submit">Upload</button>
+     </form>
+     <div class="file-grid">
+          {% for file in files %}
+          <div class="file-card" id="file-{{ file.id }}">
+               <p>{{ file.name }}</p>
+               {% if file.category == "Image" %}
+               <img src="{{ file.file.url }}" width="100" height="100">
+               {% elif file.category == "Video" %}
+               <video src="{{ file.file.url }}" width="100" height="100" controls></video>
+               {% elif file.category == "Audio" %}
+               <audio src="{{ file.file.url }}" controls></audio>
+               {% endif %}
+               <button onclick="downloadFile('{{ file.id }}')">Download</button>
+               <button onclick="deleteFile('{{ file.id }}')">Delete</button>
+          </div>
+          {% endfor %}
+     </div>
+
+     <script>
+          // Handle file upload
+          $("#upload-form").submit(function (e) {
+               e.preventDefault();
+               var formData = new FormData(this); // Ensure `FormData` is initialized correctly
+               $.ajax({
+                    url: "", // Current URL for handling uploads
+                    type: "POST",
+                    data: formData,
+                    processData: false, // Ensure files are sent as binary
+                    contentType: false, // Prevent jQuery from setting the wrong content type
+                    success: function (response) {
+                         if (response.status === "success") {
+                              location.reload(); // Reload page on success
+                         } else {
+                              alert("Error uploading file."); // Show error if upload fails
+                         }
+                    },
+               });
+          });
+
+          // Handle file deletion
+          function deleteFile(fileId) {
+               $.ajax({
+                    url: `/delete/${fileId}/`, // Construct the URL for deleting files
+                    type: "POST",
+                    data: {
+                         csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token
+                    },
+                    success: function (response) {
+                         if (response.status === "success") {
+                              $(`#file-${fileId}`).remove(); // Remove file card from DOM
+                         } else {
+                              alert("Error deleting file."); // Show error if deletion fails
+                         }
+                    },
+               });
+          }
+
+          // Handle file download
+          function downloadFile(fileId) {
+               window.location.href = `/download/${fileId}/`; // Redirect for downloading files
+          }
+
+     </script>
+</body>
+
+</html>
