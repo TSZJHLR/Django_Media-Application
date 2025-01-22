@@ -44,9 +44,11 @@ def index(request): #index view
                     'image': 'Image',
                }.get(uploaded_file_instance.type, 'Other') # get the file category
                uploaded_file_instance.save() # save the file instance
+               messages.success(request, "File uploaded successfully!")  # success message
                return JsonResponse({"status": "success"}) # success JSON response
-
-          return JsonResponse({"status": "error", "errors": form.errors})  # return error JSON response
+          else:
+               messages.error(request, "File upload failed. Please check the file size or type.")  # error message
+               return JsonResponse({"status": "error", "errors": form.errors})  # return error JSON response
 
      files = MediaFile.objects.all() # all the files from the database
      return render(request, "index.html", {"files": files}) # render the html template with the files
