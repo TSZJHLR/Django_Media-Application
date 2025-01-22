@@ -1,5 +1,3 @@
-# Django_Media-Application
-
 <h1 align="center">Django Media Management Application</h1>
 
 <p align="center">
