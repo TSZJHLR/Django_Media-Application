@@ -20,7 +20,6 @@
       <li>File size must be between 100KB and 10MB.</li>
     </ul>
   </li>
-  <li>Simple notification system (success/error messages) for user feedback.</li>
 </ul>
 
 <hr>
