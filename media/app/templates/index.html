@@ -160,47 +160,47 @@
      </div>
 
      <script>
-          // Handle file upload
+          // handling file upload
           $("#upload-form").submit(function (e) {
                e.preventDefault();
-               var formData = new FormData(this); // Ensure `FormData` is initialized correctly
+               var formData = new FormData(this); // initialize `FormData`
                $.ajax({
-                    url: "", // Current URL for handling uploads
+                    url: "", // current for handling uploads
                     type: "POST",
                     data: formData,
-                    processData: false, // Ensure files are sent as binary
-                    contentType: false, // Prevent jQuery from setting the wrong content type
+                    processData: false, // send files as binary
+                    contentType: false, // prevent wrong content type
                     success: function (response) {
                          if (response.status === "success") {
-                              location.reload(); // Reload page on success
+                              location.reload(); //reload on success
                          } else {
-                              alert("Error uploading file."); // Show error if upload fails
+                              alert("Error uploading file."); //error for fail upload
                          }
                     },
                });
           });
 
-          // Handle file deletion
+          // handling file deletion
           function deleteFile(fileId) {
                $.ajax({
-                    url: `/delete/${fileId}/`, // Construct the URL for deleting files
+                    url: `/delete/${fileId}/`, // url for delete file
                     type: "POST",
                     data: {
-                         csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token
+                         csrfmiddlewaretoken: '{{ csrf_token }}', // including CSRF token
                     },
                     success: function (response) {
                          if (response.status === "success") {
-                              $(`#file-${fileId}`).remove(); // Remove file card from DOM
+                              $(`#file-${fileId}`).remove(); // remove file card
                          } else {
-                              alert("Error deleting file."); // Show error if deletion fails
+                              alert("Error deleting file."); // deletion fail error
                          }
                     },
                });
           }
 
-          // Handle file download
+          // handling file download
           function downloadFile(fileId) {
-               window.location.href = `/download/${fileId}/`; // Redirect for downloading files
+               window.location.href = `/download/${fileId}/`; // redirect for downloading files
           }
      </script>
 </body>
