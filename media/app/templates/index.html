@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Media Management Application</title>
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <style>
+          body {
+               font-family: 'Roboto', sans-serif;
+               background-color: #f4f4f4;
+               margin: 0;
+               padding: 0;
+          }
+
+          .container {
+               width: 80%;
+               margin: 20px auto;
+               background-color: #fff;
+               padding: 20px;
+               box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+               border-radius: 10px;
+          }
+
+          h1 {
+               text-align: center;
+               color: #333;
+               margin-bottom: 20px;
+          }
+
+          .upload-section {
+               margin-bottom: 20px;
+               text-align: center;
+          }
+
+          .upload-section input[type="file"] {
+               display: none;
+          }
+
+          .upload-section label {
+               display: inline-block;
+               padding: 10px 20px;
+               background-color: #007bff;
+               color: #fff;
+               border-radius: 5px;
+               cursor: pointer;
+               font-size: 16px;
+          }
+
+          .upload-section button {
+               margin-left: 10px;
+               padding: 10px 20px;
+               background-color: #28a745;
+               color: #fff;
+               border: none;
+               border-radius: 5px;
+               cursor: pointer;
+               font-size: 16px;
+          }
+
+          .upload-section button:hover {
+               background-color: #218838;
+          }
+
+          .file-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+               gap: 20px;
+               margin-top: 20px;
+          }
+
+          .file-card {
+               border: 1px solid #ddd;
+               padding: 15px;
+               background-color: #fafafa;
+               border-radius: 8px;
+               box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+               text-align: center;
+          }
+
+          .file-card img,
+          .file-card video,
+          .file-card audio {
+               max-width: 100%;
+               max-height: 150px;
+               object-fit: cover;
+               margin-bottom: 10px;
+               border-radius: 5px;
+          }
+
+          .file-card p {
+               margin: 5px 0;
+               font-size: 14px;
+               color: #555;
+          }
+
+          .file-card .file-actions button {
+               margin: 5px;
+               padding: 8px 12px;
+               border: none;
+               border-radius: 5px;
+               cursor: pointer;
+               font-size: 14px;
+          }
+
+          .file-card .file-actions button.download {
+               background-color: #28a745;
+               color: #fff;
+          }
+
+          .file-card .file-actions button.download:hover {
+               background-color: #218838;
+          }
+
+          .file-card .file-actions button.delete {
+               background-color: #dc3545;
+               color: #fff;
+          }
+
+          .file-card .file-actions button.delete:hover {
+               background-color: #c82333;
+          }
+     </style>
+</head>
+
+<body>
+     <div class="container">
+          <h1>Media Management Application</h1>
+          <div class="upload-section">
+               <form id="upload-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label for="file-upload">
+                         <i class="fas fa-upload"></i> Select Files
+                    </label>
+                    <input id="file-upload" type="file" name="file" multiple>
+                    <button type="submit">Upload</button>
+               </form>
+          </div>
+          <div class="file-grid">
+               {% for file in files %}
+               <div class="file-card" id="file-{{ file.id }}">
+                    <p><strong>{{ file.name }}</strong></p>
+                    {% if file.category == "Image" %}
+                    <img src="{{ file.file.url }}" alt="Image File">
+                    {% elif file.category == "Video" %}
+                    <video src="{{ file.file.url }}" controls></video>
+                    {% elif file.category == "Audio" %}
+                    <audio src="{{ file.file.url }}" controls></audio>
+                    {% endif %}
+                    <p><strong>Size:</strong> {{ file.size|filesizeformat }}</p>
+                    <p><strong>Date Uploaded:</strong> {{ file.date_uploaded }}</p>
+                    <div class="file-actions">
+                         <button class="download" onclick="downloadFile('{{ file.id }}')">Download</button>
+                         <button class="delete" onclick="deleteFile('{{ file.id }}')">Delete</button>
+                    </div>
+               </div>
+               {% endfor %}
+          </div>
+     </div>
+
+     <script>
+          // Handle file upload
+          $("#upload-form").submit(function (e) {
+               e.preventDefault();
+               var formData = new FormData(this); // Ensure `FormData` is initialized correctly
+               $.ajax({
+                    url: "", // Current URL for handling uploads
+                    type: "POST",
+                    data: formData,
+                    processData: false, // Ensure files are sent as binary
+                    contentType: false, // Prevent jQuery from setting the wrong content type
+                    success: function (response) {
+                         if (response.status === "success") {
+                              location.reload(); // Reload page on success
+                         } else {
+                              alert("Error uploading file."); // Show error if upload fails
+                         }
+                    },
+               });
+          });
+
+          // Handle file deletion
+          function deleteFile(fileId) {
+               $.ajax({
+                    url: `/delete/${fileId}/`, // Construct the URL for deleting files
+                    type: "POST",
+                    data: {
+                         csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token
+                    },
+                    success: function (response) {
+                         if (response.status === "success") {
+                              $(`#file-${fileId}`).remove(); // Remove file card from DOM
+                         } else {
+                              alert("Error deleting file."); // Show error if deletion fails
+                         }
+                    },
+               });
+          }
+
+          // Handle file download
+          function downloadFile(fileId) {
+               window.location.href = `/download/${fileId}/`; // Redirect for downloading files
+          }
+     </script>
+</body>
+
+</html>
