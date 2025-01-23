@@ -74,6 +74,10 @@ conda activate media-app</code></pre>
     <pre><code>pip install -r requirements.txt</code></pre>
   </li>
 
+  <li><strong>Navigate to file:</strong>
+    <pre><code>cd .\<path-to-file>\Django_Media-Application-main\media\</code></pre>
+  </li>
+
   <li><strong>Apply migrations:</strong>
     <pre><code>python manage.py migrate</code></pre>
   </li>
